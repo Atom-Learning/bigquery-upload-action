@@ -1,17 +1,26 @@
 import pytest
 
-from plugin_scripts import deploy
-from plugin_scripts.deploy import DatasetSchemaDirectoryNonExistent, DeployFailed
+from plugin_scripts import insert_rows
 
 
 @pytest.fixture
-def dataset_schema_directory(monkeypatch):
-    return monkeypatch.setenv("dataset_schema_directory", "schemas/project")
+def dataset_id(monkeypatch):
+    return monkeypatch.setenv("dataset_id", "foo_dataset_id")
 
 
 @pytest.fixture
 def gcp_project(monkeypatch):
-    return monkeypatch.setenv("gcp_project", "gcp_project")
+    return monkeypatch.setenv("gcp_project", "foo_gcp_project")
+
+
+@pytest.fixture
+def table_id(monkeypatch):
+    return monkeypatch.setenv("table_id", "foo_table_id")
+
+
+@pytest.fixture
+def bq_rows_as_json_path(monkeypatch):
+    return monkeypatch.setenv("bq_rows_as_json_path", "foo.json")
 
 
 @pytest.fixture
@@ -19,71 +28,64 @@ def credentials(monkeypatch):
     return monkeypatch.setenv("credentials", "{'secret': 'value'}")
 
 
-def test__validate_env_variables_missing_dataset_schema_directory(
-    gcp_project, credentials
+def test__validate_env_variables_missing_dataset_id(
+    table_id, gcp_project, credentials, bq_rows_as_json_path
 ):
     with pytest.raises(Exception) as exec_info:
-        deploy._validate_env_variables()
-    assert exec_info.value.args[0] == "Missing `dataset_schema_directory` config"
+        insert_rows.read_config()
+    assert exec_info.value.args[0] == "Missing `dataset_id` config"
 
 
 def test__validate_env_variables_missing_gcp_project(
-    dataset_schema_directory, credentials
+    dataset_id, table_id, credentials, bq_rows_as_json_path
 ):
     with pytest.raises(Exception) as exec_info:
-        deploy._validate_env_variables()
+        insert_rows.read_config()
     assert exec_info.value.args[0] == "Missing `gcp_project` config"
 
 
-def test__validate_env_variables_missing_credentials(
-    gcp_project, dataset_schema_directory
+def test__validate_env_variables_missing_table_id(
+    dataset_id, gcp_project, credentials, bq_rows_as_json_path
 ):
     with pytest.raises(Exception) as exec_info:
-        deploy._validate_env_variables()
+        insert_rows.read_config()
+    assert exec_info.value.args[0] == "Missing `table_id` config"
+
+
+def test__validate_env_variables_missing_bq_rows_as_json_path(
+    dataset_id,
+    gcp_project,
+    credentials,
+    table_id,
+):
+    with pytest.raises(Exception) as exec_info:
+        insert_rows.read_config()
+    assert exec_info.value.args[0] == "Missing `bq_rows_as_json_path` config"
+
+
+def test__validate_env_variables_missing_credentials(
+    gcp_project, dataset_id, table_id, bq_rows_as_json_path
+):
+    with pytest.raises(Exception) as exec_info:
+        insert_rows.read_config()
     assert exec_info.value.args[0] == "Missing `credentials` config"
 
 
 def test__validate_env_variables_all_variables_present(
-    gcp_project, dataset_schema_directory, credentials
+    mocker, credentials, gcp_project, dataset_id, table_id, bq_rows_as_json_path
 ):
-    deploy._validate_env_variables()
-    assert True
+    mocker.patch("json.loads")
+    config = insert_rows.read_config()
+    assert config.gcp_project == "foo_gcp_project"
 
 
-def test__validate_if_path_exists_true(mocker, dataset_schema_directory):
-    os_mock = mocker.patch("plugin_scripts.deploy.os")
-    os_mock.path.isdir.return_value = True
-    assert deploy._validate_if_path_exists()
-
-
-def test__validate_if_path_exists_false(mocker, dataset_schema_directory):
-    os_mock = mocker.patch("plugin_scripts.deploy.os")
-    os_mock.path.isdir.return_value = False
-    assert not deploy._validate_if_path_exists()
-
-
-def test_main_schema_directory_false(
-    mocker, gcp_project, dataset_schema_directory, credentials
+def test__main_true(
+    mocker, gcp_project, dataset_id, table_id, bq_rows_as_json_path, credentials
 ):
-    os_mock = mocker.patch("plugin_scripts.deploy.os")
-    os_mock.path.isdir.return_value = False
+    mocker.patch("json.loads")
+    mocker.patch("plugin_scripts.insert_rows.bigquery")
+    mocker.patch("json.load")
+    mocker.patch("builtins.open")
+    insert_rows.main()
 
-    with pytest.raises(DatasetSchemaDirectoryNonExistent):
-        deploy.main()
-
-
-def test_main_false(mocker, gcp_project, dataset_schema_directory, credentials):
-    os_mock = mocker.patch("plugin_scripts.deploy.os")
-    os_mock.path.isdir.return_value = True
-
-    with pytest.raises(DeployFailed):
-        deploy.main()
-
-
-def test_main_true(mocker, gcp_project, dataset_schema_directory, credentials):
-    os_mock = mocker.patch("plugin_scripts.deploy.os")
-    os_mock.path.isdir.return_value = True
-
-    mocker.patch("plugin_scripts.deploy.BigQuery")
-    deploy.main()
     assert True
