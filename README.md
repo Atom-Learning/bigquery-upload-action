@@ -1,17 +1,19 @@
-[![Actions Status](https://github.com/jashparekh/bigquery-action/workflows/Lint/badge.svg?branch=main)](https://github.com/jashparekh/bigquery-action/actions)
-[![Actions Status](https://github.com/jashparekh/bigquery-action/workflows/Unit%20Tests/badge.svg?branch=main)](https://github.com/jashparekh/bigquery-action/actions)
-[![Actions Status](https://github.com/jashparekh/bigquery-action/workflows/Integration%20Test/badge.svg?branch=main)](https://github.com/jashparekh/bigquery-action/actions)
-![Version](https://img.shields.io/static/v3.svg?label=Version&message=v1&color=lightgrey&?link=http://left&link=https://github.com/jashparekh/bigquery-action/tree/v3)
+[![Actions Status](https://github.com/Atom-Learning/bigquery-upload-action/workflows/Lint/badge.svg?branch=main)](https://github.com/Atom-Learning/bigquery-upload-action/actions)
+[![Actions Status](https://github.com/Atom-Learning/bigquery-upload-action/workflows/Unit%20Tests/badge.svg?branch=main)](https://github.com/Atom-Learning/bigquery-upload-action/actions)
+![Version](https://img.shields.io/static/v3.svg?label=Version&message=v1&color=lightgrey&?link=http://left&link=https://github.com/Atom-Learning/bigquery-upload-action/tree/v3)
 
 
-# BigQuery Github Action
+# BigQuery Insert Rows  Github Action
 
-This Github action can be used to deploy tables/views schemas to BigQuery.
+This Github action can be used to insert rows from a JSON file to Google BigQuery table.
+
+It doesn't do any schema validation of the rows - BQ will return a list of errors if the inserts
+are failin.
 
 ### Simple
 
 ```yaml
-name: "Deploy to BigQuery"
+name: "Insert rows to BigQuery"
 on:
   pull_request: {}
   push:
@@ -20,17 +22,19 @@ on:
 jobs:
   deploy_schemas:
     runs-on: ubuntu-latest
-    name: Deploy to BigQuery
+    name: Insert rows to BigQuery
     steps:
       # To use this repository's private action,
       # you must check out the repository
       - name: Checkout
         uses: actions/checkout@v2.3.4
       - name: Deploy schemas to BigQuery
-        uses: jashparekh/bigquery-action@v3
+        uses: Atom-Learning/bigquery-upload-action
         env:
           gcp_project: 'gcp-us-project'
-          dataset_schema_directory: 'gcp-us-project/dataset_name'
+          dataset_id: 'dataset-id'
+          table_id: 'table-id'
+          bq_rows_as_json_path: 'bq_rows.json'
           credentials: ${{ secrets.GCP_SERVICE_ACCOUNT }}
 ```
 
@@ -44,50 +48,27 @@ The full name of the GCP project you want to deploy.
 
 Example: `gcp-us-project`
 
-### `dataset_schema_directory` (required, string)
+### `dataset_id` (required, string)
 
-The directory in your repository where are you storing the schemas for your tables and views.
+The dataset containting the table you want to insert the rows to.
 
-Example: `gcp-us-project/dataset_name`
+Example: `best_dataset`
+
+### `table_id` (required, string)
+
+The table you want to insert the rows to.
+
+Example: `awesome_table`
+
+### `bq_rows_as_json_path` (required, string)
+
+The path to the JSON file containing rows you want to insert in.
+
+Example: `rows.json`
 
 ### `credentials` (required, string)
 
 Google Service Account with permission to create objects in the specified project. Can be stored as a [repository secret](https://docs.github.com/en/actions/reference/encrypted-secrets)
-
-## Schemas
-
-This action uses [GBQ](https://github.com/wayfair-incubator/gbq) to deploy to Google BigQuery.
-[GBQ](https://github.com/wayfair-incubator/gbq) now supports specifying partitions with the schema as well.
-
-To leverage this you need to nest your JSON table schema in a dictionary. An example for the same is given below. Library supports Time and Range based partitioning along with Clustering.
-
-All the configuration options can be found [here](https://github.com/wayfair-incubator/gbq/blob/main/gbq/dto.py).
-
-```json
-{
-  "partition": {
-    "type": "range",
-    "definition": {
-      "field": "ID",
-      "range": {
-        "start": 1,
-        "end": 100000,
-        "interval": 10
-      }
-    }
-  },
-  "clustering": [
-    "ID"
-  ],
-  "schema": [
-    {
-      "name": "ID",
-      "type": "INTEGER",
-      "mode": "REQUIRED"
-    }
-  ]
-}
-```
 
 ## Contributing
 
@@ -101,4 +82,5 @@ docker-compose run test
 
 ## Credits
 
-This Github Action was originally written by [Jash Parekh](https://github.com/jashparekh).
+This Github Action was written by [Wojciech Chmiel](https://github.com/chmielsen/), based on the fork of:
+https://github.com/jashparekh/bigquery-action
