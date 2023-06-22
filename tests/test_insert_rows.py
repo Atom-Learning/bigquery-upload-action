@@ -2,6 +2,7 @@ from plugin_scripts import insert_rows
 
 # Fixtures imported automatically from conftest.py file
 
+
 def test__main_true(
     mocker, gcp_project, dataset_id, table_id, bq_rows_as_json_path, credentials
 ):
