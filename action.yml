@@ -1,19 +1,25 @@
 ## action.yml
-name: 'Google Bigquery "Deploy table, view and other structure definitions" Action for Github Action'
-description: 'Creates a Bigquery structure if it does not exists, else updates it'
-author: 'Jash Parekh <me@jashparekh.com>'
+name: 'Insert rows from JSON file to Google Bigquery Github Action'
+description: 'Insert rows from a JSON file to Google Bigquery using streaming API from official BQ Python client'
+author: 'Wojciech Chmiel <wojtek.chmiel@atomlearning.co.uk>'
 branding:
   icon: 'activity'
-  color: 'orange'
+  color: 'blue'
 inputs:
   gcp_project:
     description: 'Name of the GCP Project'
     required: true
-  dataset_schema_directory:
-    description: 'Path to the directory with schemas. Name of the directory should match with the dataset name in BigQuery'
+  dataset_id:
+    description: 'The dataset containting the table you want to insert the rows to.'
+    required: true
+  table_id:
+    description: 'The table you want to insert the rows to.'
+    required: true 
+  bq_rows_as_json_path:
+    description: 'The path to the JSON file containing rows you want to insert in.'
     required: true
   credentials:
-    description: 'Service account to autheticate with BigQuery'
+    description: 'Service account to authenticate with BigQuery'
     required: true
 runs:
   using: 'docker'
