@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v2.3.4
       - name: Deploy schemas to BigQuery
         uses: Atom-Learning/bigquery-upload-action
-        env:
+        with:
           gcp_project: 'gcp-us-project'
           dataset_id: 'dataset-id'
           table_id: 'table-id'

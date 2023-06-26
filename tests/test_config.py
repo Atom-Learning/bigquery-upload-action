@@ -4,6 +4,7 @@ from plugin_scripts.config import read_config
 
 # Fixtures imported automatically from conftest.py file
 
+
 def test__validate_env_variables_missing_dataset_id(
     table_id, gcp_project, credentials, bq_rows_as_json_path
 ):

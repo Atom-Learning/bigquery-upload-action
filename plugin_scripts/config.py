@@ -11,10 +11,6 @@ def nullthrows(arg: Optional[T]) -> T:
 
 
 class Config(NamedTuple):
-    """
-    Names of the arguments are env var names read from
-    """
-
     gcp_project: str
     dataset_id: str
     table_id: str
@@ -23,18 +19,20 @@ class Config(NamedTuple):
 
 
 def _validate_env_variables() -> None:
-    for env_var in Config._fields:
+    for param in Config._fields:
+        # GH actions prefixes the arguments passed to `with` with `INPUT_` and puts upper case.
+        env_var = "INPUT_" + param.upper()
         if not os.environ.get(env_var):
-            raise Exception(f"Missing `{env_var}` config")
+            raise Exception(f"Missing `{param}` config")
 
 
 def read_config() -> Config:
     _validate_env_variables()
-    gcp_project = os.environ.get("gcp_project")
-    dataset_id = os.environ.get("dataset_id")
-    table_id = os.environ.get("table_id")
-    bq_rows_as_json_path = os.environ.get("bq_rows_as_json_path")
-    credentials_as_json = os.environ.get("credentials")
+    gcp_project = os.environ.get("INPUT_GCP_PROJECT")
+    dataset_id = os.environ.get("INPUT_DATASET_ID")
+    table_id = os.environ.get("INPUT_TABLE_ID")
+    bq_rows_as_json_path = os.environ.get("INPUT_BQ_ROWS_AS_JSON_PATH")
+    credentials_as_json = os.environ.get("INPUT_CREDENTIALS")
     credentials = json.loads(nullthrows(credentials_as_json))
 
     return Config(
