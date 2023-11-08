@@ -80,6 +80,15 @@ To execute tests locally (requires that `docker` and `docker-compose` are instal
 docker-compose run test
 ```
 
+## Releasing
+
+To validate the changes:
+1. Start Docker locally.
+2. Inside docker/ run `$ docker-compose up`
+3. Inside main dir run: `$ docker-compose run test`
+
+If all of that work, push a version and tag by bumping the number after the ., e.g. if version is 1.1, then push 1.2 and run the job pointing to the new version, to verify it's working
+
 ## Credits
 
 This Github Action was written by [Wojciech Chmiel](https://github.com/chmielsen/), based on the fork of:

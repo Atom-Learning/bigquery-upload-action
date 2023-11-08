@@ -1,4 +1,4 @@
-FROM python:3.8-slim AS builder
+FROM python:3.8.18-slim-bullseye AS builder
 ADD . /app
 WORKDIR /app
 
