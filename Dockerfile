@@ -1,9 +1,12 @@
 FROM python:3.8.18-slim-bullseye AS builder
+
+LABEL org.opencontainers.image.source=https://github.com/Atom-Learning/bigquery-upload-action
+LABEL org.opencontainers.image.description="This Github action can be used to upload samples to BigQuery table."
+LABEL org.opencontainers.image.licenses=MIT
+
 ADD . /app
 WORKDIR /app
 
-RUN apt-get update
-RUN apt-get install -y g++
 # We are installing a dependency here directly into our app source dir
 RUN pip install --target=/app -r plugin_scripts/requirements.lock
 ENV PYTHONPATH /app
