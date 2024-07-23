@@ -1,12 +1,24 @@
 import json
 import logging
 import sys
+from itertools import islice
 
 from google.cloud import bigquery
 
 from .config import Config, read_config
 
 sys.tracebacklimit = 0
+
+BATCH_SIZE = 20000
+
+
+def batched(iterable, n):
+    # batched('ABCDEFG', 3) → ABC DEF G
+    if n < 1:
+        raise ValueError("n must be at least one")
+    iterator = iter(iterable)
+    while batch := tuple(islice(iterator, n)):
+        yield batch
 
 
 def insert_rows(config: Config) -> None:
@@ -31,14 +43,22 @@ def insert_rows(config: Config) -> None:
     with open(config.bq_rows_as_json_path, "r") as row_file:
         rows = json.load(row_file)
 
-    logging.info(f"Loaded {len(rows)} rows. Inserting...")
+    if not isinstance(rows, list):
+        raise ValueError(f"Expected JSON file to be a list of rows, was: {type(rows)}")
+
+    logging.info(f"Loaded {len(rows)} rows. Inserting in batches {BATCH_SIZE}...")
+
+    total_errors = []
+    for batch in batched(rows, BATCH_SIZE):
+        errors = client.insert_rows_json(table_ref, batch)
+        total_errors.extend(errors)
 
     errors = client.insert_rows_json(table_ref, rows)
 
     logging.info(f"Inserted rows with {len(errors)} errors")
-    for e in errors:
+    for e in total_errors:
         logging.error(e)
-    if len(errors) > 0:
+    if len(total_errors) > 0:
         raise Exception("Got exceptions on returning rows, see above.")
 
 
