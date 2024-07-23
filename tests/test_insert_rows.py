@@ -8,7 +8,7 @@ def test__main_true(
 ):
     mocker.patch("json.loads")
     mocker.patch("plugin_scripts.insert_rows.bigquery")
-    mocker.patch("json.load")
+    mocker.patch("json.load", return_value=[{"a": 1}, {"b": 2}])
     mocker.patch("builtins.open")
     insert_rows.main()
 
