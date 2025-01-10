@@ -4,22 +4,20 @@ on:
   push:
       branches: ["main"]
 
-env:
-  PYTHON_VERSION: "3.10"
-
 jobs:
   test:
     name: Pytest
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-20.04
     strategy:
       matrix:
-        python-version: [ "3.6", "3.7", "3.8", "3.9", "3.10" ]
+        # Versions available: https://raw.githubusercontent.com/actions/python-versions/main/versions-manifest.json
+        python-version: [ "3.9.0", "3.10.0", "3.11.11" ]
     steps:
       - name: Check out code
         uses: actions/checkout@v3
       - uses: actions/setup-python@v4
         with:
-          python-version: ${{ env.PYTHON_VERSION }}
+          python-version: ${{ matrix.python-version }}
       - name: Install dependencies
         uses: ./.github/actions/install-dependencies
         with:
@@ -27,20 +25,22 @@ jobs:
           test-requirements: "true"
 
       - name: Run pytest
-        run: pytest --cov deploy tests/test_insert_rows.py --cov-report xml:coverage-${{ env.PYTHON_VERSION }}.xml --junitxml=test-results-${{ env.PYTHON_VERSION }}.xml
+        run: pytest --cov deploy tests/test_insert_rows.py --cov-report xml:coverage-${{ matrix.python-version }}.xml --junitxml=test-results-${{ matrix.python-version }}.xml
 
       - name: Upload pytest test results artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-results-${{ env.PYTHON_VERSION }}
-          path: test-results-${{ env.PYTHON_VERSION }}.xml
+          name: pytest-results-${{ matrix.python-version }}
+          path: test-results-${{ matrix.python-version }}.xml
+          retention-days: 3
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
 
       - name: Upload coverage results artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
-          name: pytest-coverage-${{ env.PYTHON_VERSION }}
-          path: coverage-${{ env.PYTHON_VERSION }}.xml
+          name: pytest-coverage-${{ matrix.python-version }}
+          path: coverage-${{ matrix.python-version }}.xml
+          retention-days: 3
         # Use always() to always run this step to publish test results when there are test failures
         if: ${{ always() }}
