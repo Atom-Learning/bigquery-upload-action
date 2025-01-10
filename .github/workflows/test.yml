@@ -38,7 +38,7 @@ jobs:
         if: ${{ always() }}
 
       - name: Upload coverage results artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-coverage-${{ env.PYTHON_VERSION }}
           path: coverage-${{ env.PYTHON_VERSION }}.xml
