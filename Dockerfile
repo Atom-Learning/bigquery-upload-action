@@ -1,4 +1,4 @@
-FROM python:3.8.18-slim-bullseye AS builder
+FROM python:3.11.0-slim-bullseye AS builder
 
 LABEL org.opencontainers.image.source=https://github.com/Atom-Learning/bigquery-upload-action
 LABEL org.opencontainers.image.description="This Github action can be used to upload samples to BigQuery table."
