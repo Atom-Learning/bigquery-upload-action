@@ -30,7 +30,7 @@ jobs:
         run: pytest --cov deploy tests/test_insert_rows.py --cov-report xml:coverage-${{ env.PYTHON_VERSION }}.xml --junitxml=test-results-${{ env.PYTHON_VERSION }}.xml
 
       - name: Upload pytest test results artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: pytest-results-${{ env.PYTHON_VERSION }}
           path: test-results-${{ env.PYTHON_VERSION }}.xml
