@@ -51,11 +51,11 @@ def insert_rows(config: Config) -> None:
     total_errors = []
     for batch in batched(rows, BATCH_SIZE):
         errors = client.insert_rows_json(table_ref, batch)
-        total_errors.extend(errors)
+        logging.info(f"Inserted {len(batch)} rows")
+        if errors is not None:
+            total_errors.extend(errors)
 
-    errors = client.insert_rows_json(table_ref, rows)
-
-    logging.info(f"Inserted rows with {len(errors)} errors")
+    logging.info(f"Inserted rows with {len(total_errors)} errors")
     for e in total_errors:
         logging.error(e)
     if len(total_errors) > 0:
@@ -63,6 +63,11 @@ def insert_rows(config: Config) -> None:
 
 
 def main():
+    logging.basicConfig(level=logging.DEBUG)
     logging.debug("Reading config...")
     config = read_config()
     insert_rows(config)
+
+
+if __name__ == "__main__":
+    main()
