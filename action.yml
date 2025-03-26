@@ -23,4 +23,4 @@ inputs:
     required: true
 runs:
   using: 'docker'
-  image: 'docker://ghcr.io/atom-learning/bigquery-upload-action:v0.8.0'
+  image: 'docker://ghcr.io/atom-learning/bigquery-upload-action:v0.8.1'
