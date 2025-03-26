@@ -13,6 +13,6 @@ How to release a new version of this Action.
     - This script build the new Docker image for the Action and pushes them to ghcr.io
 3. Update `runs.image` in `actions.yml` to `docker://ghcr.io/atom-learning/bigquery-upload-action:<new tag>`
 4. Commit with change to `main`
-5. Finally tag with Git and push: `git tag <new tag> && git push --tags`
+5. Finally tag with Git and push: `git tag <new tag> && git push --tags origin main`
 
 After this the release will be complete. Then update any dependent Actions workflows to reference the new version.
